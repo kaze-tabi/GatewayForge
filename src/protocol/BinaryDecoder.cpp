@@ -44,10 +44,7 @@ BinaryDecoder::Decode(const uint8_t* data, size_t len) const {
                 offset += field_size;
             }
 
-            if (payload_len == 0) {
-                offset = msg_start + schema_.framing.header_len;
-                continue;
-            }
+            // Allow payload_len == 0: header-only messages are valid
 
             // Calculate message size
             size_t msg_size = schema_.framing.header_len + payload_len;

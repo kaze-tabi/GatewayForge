@@ -1,40 +1,49 @@
 #pragma once
 
 #include <string>
-#include <variant>
-#include <optional>
 #include <stdexcept>
+#include <utility>
 
 namespace gatewayforge {
 
 template<typename T>
 class Result {
 public:
-    static Result<T> Ok(T value) { return Result(std::move(value)); }
-    static Result<T> Err(std::string error) { return Result(std::move(error), true); }
+    static Result<T> Ok(T value) {
+        Result r;
+        r.value_ = std::move(value);
+        r.has_value_ = true;
+        return r;
+    }
 
-    bool IsOk() const { return !is_error_; }
-    bool IsErr() const { return is_error_; }
+    static Result<T> Err(std::string error) {
+        Result r;
+        r.error_ = std::move(error);
+        r.has_value_ = false;
+        return r;
+    }
 
-    T& Value() { return std::get<T>(data_); }
-    const T& Value() const { return std::get<T>(data_); }
-    const std::string& Error() const { return std::get<std::string>(data_); }
+    bool IsOk() const { return has_value_; }
+    bool IsErr() const { return !has_value_; }
+
+    T& Value() { return value_; }
+    const T& Value() const { return value_; }
+    const std::string& Error() const { return error_; }
 
     T Unwrap() const {
-        if (is_error_) throw std::runtime_error(Error());
-        return Value();
+        if (!has_value_) throw std::runtime_error(error_);
+        return value_;
     }
 
     T UnwrapOr(T default_value) const {
-        return is_error_ ? std::move(default_value) : Value();
+        return has_value_ ? value_ : std::move(default_value);
     }
 
 private:
-    Result(T value) : data_(std::move(value)), is_error_(false) {}
-    Result(std::string error, bool) : data_(std::move(error)), is_error_(true) {}
-
-    std::variant<T, std::string> data_;
-    bool is_error_;
+    Result() = default;
+    T value_{};
+    std::string error_;
+    bool has_value_ = false;
 };
 
 } // namespace gatewayforge

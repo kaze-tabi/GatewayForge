@@ -1,8 +1,10 @@
 #include "gatewayforge/common/Logger.h"
+#include <mutex>
 
 namespace gatewayforge {
 
 std::shared_ptr<spdlog::logger> Logger::logger_;
+std::once_flag Logger::init_flag_;
 
 void Logger::Init(const std::string& level) {
     logger_ = spdlog::stdout_color_mt("gatewayforge");
