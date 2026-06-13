@@ -1,0 +1,38 @@
+name: vehicle_udp_protocol
+transport: udp
+endian: big
+
+framing:
+  type: datagram
+
+message:
+  - name: magic
+    type: u16
+    const: 0xCAFE
+
+  - name: version
+    type: u8
+
+  - name: msg_type
+    type: u8
+
+  - name: device_id
+    type: u64
+
+  - name: seq
+    type: u32
+
+  - name: timestamp
+    type: u64
+
+  - name: payload_len
+    type: u16
+
+payload:
+  length_from: payload_len
+
+analysis:
+  device_id_field: device_id
+  sequence_field: seq
+  timestamp_field: timestamp
+  timestamp_unit: ms
