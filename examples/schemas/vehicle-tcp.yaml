@@ -1,0 +1,32 @@
+name: vehicle_tcp_protocol
+transport: tcp
+endian: big
+
+framing:
+  type: length_field
+  length_field: payload_len
+  header_len: 10
+  length_includes_header: false
+
+message:
+  - name: magic
+    type: u16
+    const: 0xCAFE
+
+  - name: version
+    type: u8
+
+  - name: msg_type
+    type: u8
+
+  - name: seq
+    type: u32
+
+  - name: payload_len
+    type: u16
+
+payload:
+  length_from: payload_len
+
+analysis:
+  sequence_field: seq
